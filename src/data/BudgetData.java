@@ -25,7 +25,7 @@ public class BudgetData {
         } catch (SQLException e) {
             e.printStackTrace();
         }
-    }
+    } 
     public void testDatabaseConnection() {
         try {
         	String url = "jdbc:mysql://localhost/budget_app_db?user=root&password=password&useSSL=false&allowPublicKeyRetrieval=true";
