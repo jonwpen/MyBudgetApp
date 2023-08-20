@@ -8,7 +8,7 @@ public class Accounts {
 	private double balance;
 	private AccountType accountType;
 	
-	Accounts(){
+	public Accounts(){
 		
 	}
 	public Accounts(int accounts_id, int account_type_id, int user_id, double balance){

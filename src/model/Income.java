@@ -2,13 +2,11 @@ package model;
 
 public class Income {
 
-	
 	private int income_id;
 	private int user_id2;
 	private double weekly_income;
 	
 	public Income(String username, double weekly_income){
-		//this.user_id2 = user_id2;
 		this.weekly_income = weekly_income;
 	}
 	public Income(int income_id, int user_id2, double weekly_income){

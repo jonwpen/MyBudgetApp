@@ -2,9 +2,9 @@ package data;
 
 import java.sql.*;
 import java.util.ArrayList;
+import java.util.Arrays;
 import java.util.List;
 
-import model.AccountType;
 import model.Accounts;
 import model.Category;
 import model.Debts;
@@ -23,16 +23,17 @@ public class BudgetData {
         try {
             connection = DriverManager.getConnection(url);
         } catch (SQLException e) {
-            e.printStackTrace();
+            System.out.println("Error initializing database connection: " + e.getMessage());
         }
-    } 
+    }
+
     public void testDatabaseConnection() {
         try {
-        	String url = "jdbc:mysql://localhost/budget_app_db?user=root&password=password&useSSL=false&allowPublicKeyRetrieval=true";
-            Connection connection = DriverManager.getConnection(url);
-
-            System.out.println("Database connected successfully");
-            connection.close();
+            if (connection != null && !connection.isClosed()) {
+                System.out.println("Database connected successfully");
+            } else {
+                System.out.println("Database connection is not active");
+            }
         } catch (SQLException e) {
             System.out.println("Database connection error: " + e.getMessage());
         }
@@ -162,13 +163,14 @@ public class BudgetData {
             return;
         }
 
-        String sqlStatement = "INSERT INTO goals (user_id5, name, amount, target_date) VALUES (?, ?, ?, ?)";
-        
+        String sqlStatement = "INSERT INTO goals (user_id5, name, amount, target_date, remaining_amount) VALUES (?, ?, ?, ?, ?)";
+
         try (PreparedStatement preparedStatement = connection.prepareStatement(sqlStatement)) {
             preparedStatement.setInt(1, goal.getUser_id5());
             preparedStatement.setString(2, goal.getName());
             preparedStatement.setDouble(3, goal.getAmount());
             preparedStatement.setString(4, goal.getTarget_date());
+            preparedStatement.setDouble(5, goal.getRemaining_amount());
 
             int rowsAffected = preparedStatement.executeUpdate();
 
@@ -204,6 +206,97 @@ public class BudgetData {
 
         //Default to returning false if no user was found or an error occurred
         return false;
+    }
+    
+    public void addDebt(Debts debt) {
+        String sql = "INSERT INTO debts (expense_id, interest_rate, remaining_balance, monthly_payment, monthly_due_date) VALUES (?, ?, ?, ?, ?)";
+
+        try (PreparedStatement preparedStatement = connection.prepareStatement(sql)) {
+            preparedStatement.setInt(1, debt.getExpense_id());
+            preparedStatement.setDouble(2, debt.getInterest_rate());
+            preparedStatement.setDouble(3, debt.getRemaining_balance());
+            preparedStatement.setDouble(4, debt.getMonthlyPayment());
+            preparedStatement.setInt(5, debt.getPayment_date());
+            
+            preparedStatement.executeUpdate();
+        } catch (SQLException e) {
+            System.out.println("Error while adding debt: " + e.getMessage());
+        }
+    }
+    
+    public void createSavings(int accountId, double weeklySavings) {
+        String sqlStatement = "INSERT INTO savings (account_id, weekly_savings) VALUES (?, ?)";
+        
+        try (PreparedStatement preparedStatement = connection.prepareStatement(sqlStatement)) {
+            preparedStatement.setInt(1, accountId);
+            preparedStatement.setDouble(2, weeklySavings);
+
+            int rowsAffected = preparedStatement.executeUpdate();
+
+            if (rowsAffected > 0) {
+                System.out.println("Savings added.");
+            } else {
+                System.out.println("Failed to add savings.");
+            }
+        } catch (SQLException e) {
+            System.out.println("Error while adding savings: " + e.getMessage());
+        }
+    }
+
+    public void ensureCategoriesArePopulated() {
+        String sqlCountStatement = "SELECT COUNT(*) AS count FROM category";
+        
+        try (Statement stmt = connection.createStatement()) {
+            ResultSet rs = stmt.executeQuery(sqlCountStatement);
+            rs.next();
+            int rowCount = rs.getInt("count");
+
+            if (rowCount == 0) {
+                //List of predefined categories
+                List<String> categories = Category.predefinedCategories();
+                
+                //Prepare the SQL insert statement
+                try (PreparedStatement pstmt = connection.prepareStatement("INSERT INTO category (name) VALUES (?)")) {
+                    for (String category : categories) {
+                        pstmt.setString(1, category);
+                        pstmt.addBatch();
+                    }
+                    pstmt.executeBatch(); //Execute batch insert
+                }
+
+                //System.out.println("Predefined categories have been inserted successfully");
+            } else {
+                //System.out.println("Categories are already populated");
+            }
+        } catch (SQLException e) {
+            System.out.println("Error initializing categories: " + e.getMessage());
+        }
+    }
+    
+    public void ensureAccountTypesArePopulated() {
+        String sqlCountStatement = "SELECT COUNT(*) AS count FROM account_type";
+        
+        try (Statement stmt = connection.createStatement()) {
+            ResultSet rs = stmt.executeQuery(sqlCountStatement);
+            rs.next();
+            int rowCount = rs.getInt("count");
+
+            if (rowCount == 0) {
+                //List of predefined account types
+                List<String> accountTypes = Arrays.asList("Checking", "Savings");
+                
+                //Prepare the SQL insert statement
+                try (PreparedStatement pstmt = connection.prepareStatement("INSERT INTO account_type (type_name) VALUES (?)")) {
+                    for (String type : accountTypes) {
+                        pstmt.setString(1, type);
+                        pstmt.addBatch();
+                    }
+                    pstmt.executeBatch(); //Execute the batch insert
+                }
+            }
+        } catch (SQLException e) {
+            System.out.println("Error initializing account types: " + e.getMessage());
+        }
     }
     
     //Read methods
@@ -443,7 +536,8 @@ public class BudgetData {
                     rs.getInt("user_id5"),
                     rs.getString("name"),
                     rs.getDouble("amount"),
-                    rs.getString("target_date")
+                    rs.getString("target_date"),
+                    rs.getDouble("remaining_amount")
                 );
                 goals.add(goal);
             }
@@ -454,7 +548,72 @@ public class BudgetData {
         return goals;
     }
 
-    public List<String> getAccountsByUser(int userId) {
+    public Goals getGoalById(int goalId) {
+        Goals goal = null;
+        String sqlStatement = "SELECT * FROM goals WHERE goal_id = ?";
+        
+        try (PreparedStatement preparedStatement = connection.prepareStatement(sqlStatement)) {
+            preparedStatement.setInt(1, goalId);
+
+            ResultSet rs = preparedStatement.executeQuery();
+            
+            if (rs.next()) {
+                goal = new Goals(
+                    rs.getInt("goal_id"),
+                    rs.getInt("user_id5"),
+                    rs.getString("name"),
+                    rs.getDouble("amount"),
+                    rs.getString("target_date"),
+                    rs.getDouble("remaining_amount")
+                );
+            }
+        } catch (SQLException e) {
+            System.out.println("Error while retrieving goal: " + e.getMessage());
+        }
+
+        return goal;
+    }
+
+    public int getAccountIdByUserIdAndType(int userId, int accountTypeId) {
+        String sql = "SELECT a.accounts_id "
+                   + "FROM accounts a "
+                   + "WHERE a.user_id = ? AND a.account_type_id = ? "
+                   + "ORDER BY a.accounts_id DESC LIMIT 1"; //Get the latest added account for this user and type
+
+        try (PreparedStatement preparedStatement = connection.prepareStatement(sql)) {
+            preparedStatement.setInt(1, userId);
+            preparedStatement.setInt(2, accountTypeId);
+
+            ResultSet resultSet = preparedStatement.executeQuery();
+
+            if (resultSet.next()) {
+                return resultSet.getInt("accounts_id");
+            }
+        } catch (SQLException e) {
+            System.out.println("Error while retrieving account ID: " + e.getMessage());
+        }
+
+        return -1; //Return -1 or another sentinel value if the account ID was not found
+    }
+
+    public int getAccountTypeId(String typeName) {
+        String sqlStatement = "SELECT account_type_id FROM account_type WHERE type_name = ?";
+        
+        try (PreparedStatement preparedStatement = connection.prepareStatement(sqlStatement)) {
+            preparedStatement.setString(1, typeName);
+            ResultSet rs = preparedStatement.executeQuery();
+
+            if (rs.next()) {
+                return rs.getInt("account_type_id");
+            }
+        } catch (SQLException e) {
+            System.out.println("Error fetching account type ID: " + e.getMessage());
+        }
+        
+        return -1; //Return an invalid ID if the type name is not found
+    }
+    
+  public List<String> getAccountsByUser(int userId) {
         List<String> userAccounts = new ArrayList<>();
 
         String sql = "SELECT a.accounts_id, a.account_type_id, a.user_id, a.balance, at.type_name "
@@ -469,15 +628,11 @@ public class BudgetData {
 
             while (resultSet.next()) {
                 int accountId = resultSet.getInt("accounts_id");
-                int accountTypeId = resultSet.getInt("account_type_id");
                 double balance = resultSet.getDouble("balance");
                 String typeName = resultSet.getString("type_name");
-                String typeAndBalance = typeName +" balance: "+ balance;
+                String accountInfo = "Account ID: " + accountId + " " + typeName +" balance: "+ balance;
 
-                AccountType accountType = new AccountType(accountTypeId, typeName);
-                Accounts account = new Accounts(accountId, accountType.getAccount_type_id(), userId, balance);
-
-                userAccounts.add(typeAndBalance);
+                userAccounts.add(accountInfo);
             }
         } catch (SQLException e) {
             System.out.println("Error while retrieving accounts: " + e.getMessage());
@@ -489,10 +644,10 @@ public class BudgetData {
     public List<String> getDebtsByUser(int userId) {
         List<String> userDebts = new ArrayList<>();
 
-        String sql = "SELECT d.debt_id, d.expense_id, d.interest_rate, d.remaining_balance, e.name "
+        String sql = "SELECT d.debt_id, d.expense_id, d.interest_rate, d.remaining_balance, d.monthly_payment, d.monthly_due_date, e.name "
                    + "FROM debts d "
                    + "JOIN expenses e ON d.expense_id = e.expense_id "
-                   + "WHERE e.user_id4 = ?";
+                   + "WHERE e.user_id4 = ?"; 
 
         try (PreparedStatement preparedStatement = connection.prepareStatement(sql)) {
             preparedStatement.setInt(1, userId);
@@ -500,14 +655,15 @@ public class BudgetData {
             ResultSet resultSet = preparedStatement.executeQuery();
 
             while (resultSet.next()) {
-                int debtId = resultSet.getInt("debt_id");
-                int expenseId = resultSet.getInt("expense_id");
                 double interestRate = resultSet.getDouble("interest_rate");
                 double remainingBalance = resultSet.getDouble("remaining_balance");
-                String expenseName = resultSet.getString("expense_name");
+                double monthlyPayment = resultSet.getDouble("monthly_payment"); 
+                int monthlyPaymentDate = resultSet.getInt("monthly_due_date");
+                String expenseName = resultSet.getString("name");
 
-                String debtDetails = "Expense: " + expenseName + ", Interest Rate: " + interestRate + "%, Remaining Balance: $" + remainingBalance;
-                
+                String debtDetails = "Expense: " + expenseName + ", Interest Rate: " + interestRate + "%, \nRemaining Balance: $" + remainingBalance + 
+                		", Monthly Payment: $" + monthlyPayment + ", Monthly Payment Day: " + String.format("%02d", monthlyPaymentDate);
+
                 userDebts.add(debtDetails);
             }
         } catch (SQLException e) {
@@ -516,14 +672,35 @@ public class BudgetData {
 
         return userDebts;
     }
-    
+
+    public int getLastInsertedExpenseId(User currentUser) {
+        int userId = getUserId(currentUser);
+        int lastExpenseId = -1;
+
+        String sql = "SELECT expense_id FROM expenses WHERE user_id4 = ? ORDER BY expense_id DESC LIMIT 1";
+
+        try (PreparedStatement preparedStatement = connection.prepareStatement(sql)) {
+            preparedStatement.setInt(1, userId);
+
+            ResultSet resultSet = preparedStatement.executeQuery();
+
+            if (resultSet.next()) {
+                lastExpenseId = resultSet.getInt("expense_id");
+            }
+        } catch (SQLException e) {
+            System.out.println("Error while retrieving the last inserted expense ID: " + e.getMessage());
+        }
+
+        return lastExpenseId;
+    }
+
     public Debts getDebtByIndex(int userId, int index) {
         List<Debts> debts = new ArrayList<>();
 
-        String sql = "SELECT d.debt_id, d.expense_id, d.interest_rate, d.remaining_balance, e.expense_name "
+        String sql = "SELECT d.debt_id, d.expense_id, d.interest_rate, d.remaining_balance, d.monthly_payment, d.monthly_due_date, e.name "
                    + "FROM debts d "
                    + "JOIN expenses e ON d.expense_id = e.expense_id "
-                   + "WHERE e.user_id = ?";
+                   + "WHERE e.user_id4 = ?"; 
 
         try (PreparedStatement preparedStatement = connection.prepareStatement(sql)) {
             preparedStatement.setInt(1, userId);
@@ -535,8 +712,10 @@ public class BudgetData {
                 int expenseId = resultSet.getInt("expense_id");
                 double interestRate = resultSet.getDouble("interest_rate");
                 double remainingBalance = resultSet.getDouble("remaining_balance");
+                double monthlyPayment = resultSet.getDouble("monthly_payment"); 
+                int monthlyPaymentDate = resultSet.getInt("monthly_due_date");
 
-                Debts debt = new Debts(debtId, expenseId, interestRate, remainingBalance);
+                Debts debt = new Debts(debtId, expenseId, interestRate, remainingBalance, monthlyPayment, monthlyPaymentDate); 
                 debts.add(debt);
             }
         } catch (SQLException e) {
@@ -549,7 +728,6 @@ public class BudgetData {
         return debts.get(index);
     }
 
-    
     public double getTotalWeeklyIncome(int userId) {
         double totalWeeklyIncome = 0;
         String sqlIncome = "SELECT SUM(i.weekly_income) AS total_weekly_income "
@@ -589,10 +767,10 @@ public class BudgetData {
 
         return totalWeeklySavings;
     }
-    
+   
     //Update methods
     public void updateAccount(Accounts account) {
-        String sql = "UPDATE accounts SET balance = ? WHERE account_id = ?";
+        String sql = "UPDATE accounts SET balance = ? WHERE accounts_id = ?";
         try (PreparedStatement preparedStatement = connection.prepareStatement(sql)) {
             //Set the values for the placeholders in the SQL query
             preparedStatement.setDouble(1, account.getBalance());
@@ -633,13 +811,12 @@ public class BudgetData {
     }
 
     public void updateGoal(Goals goal) {
-        String sql = "UPDATE goals SET name = ?, amount = ?, target_date = ? WHERE goal_id = ?";
+        String sql = "UPDATE goals SET remaining_amount = ?, target_date = ? WHERE goal_id = ?";
         try (PreparedStatement preparedStatement = connection.prepareStatement(sql)) {
-            
-            preparedStatement.setString(1, goal.getName());
-            preparedStatement.setDouble(2, goal.getAmount());
-            preparedStatement.setString(3, goal.getTarget_date());
-            preparedStatement.setInt(4, goal.getGoal_id()); // Set the goal_id in the WHERE clause
+ 
+            preparedStatement.setDouble(1, goal.getRemaining_amount());
+            preparedStatement.setString(2, goal.getTarget_date());
+            preparedStatement.setInt(3, goal.getGoal_id()); 
 
             int rowsAffected = preparedStatement.executeUpdate();
 
@@ -670,6 +847,25 @@ public class BudgetData {
         } catch (SQLException e) {
             System.out.println("Error while updating Income: " + e.getMessage());
         }
+    }
+    
+    public boolean updateDebt(int debtId, int monthlyPayment) {
+        String sql = "UPDATE debts SET monthly_payment = ? WHERE debt_id = ?";
+
+        try (PreparedStatement preparedStatement = connection.prepareStatement(sql)) {
+            preparedStatement.setInt(1, monthlyPayment);
+            preparedStatement.setInt(2, debtId);
+
+            int affectedRows = preparedStatement.executeUpdate();
+
+            if (affectedRows > 0) {
+                return true; //Successfully updated
+            }
+        } catch (SQLException e) {
+            System.out.println("Error while updating debt's monthly payment: " + e.getMessage());
+        }
+
+        return false; //Update failed
     }
     
     //Delete methods. Foreign key constraints will cascade and delete associated data when a user is deleted.
@@ -743,7 +939,7 @@ public class BudgetData {
         }
     }
     
-    //Close database connection when controller is finished with database interactions.
+    //Close database connection when controller is finished with database.
     public void closeConnection() {
         try {
             if (connection != null && !connection.isClosed()) {

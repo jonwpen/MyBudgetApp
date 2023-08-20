@@ -6,20 +6,23 @@ public class Goals {
 	private int user_id5;
 	private String name;
 	private double amount;
-	private String target_date; //Include error handling for non-date formatted input
+	private double remaining_amount;
+	private String target_date;
 	
-	public Goals(int goal_id, int user_id5, String name, double amount, String target_date){
+	public Goals(int goal_id, int user_id5, String name, double amount, String target_date, double remaining_amount){
 		this.goal_id = goal_id;
 		this.user_id5 = user_id5;
 		this.name = name;
 		this.amount = amount;
 		this.target_date = target_date;
+		this.remaining_amount = remaining_amount;
 	}
-	public Goals(int user_id5, String name, double amount, String target_date){
+	public Goals(int user_id5, String name, double amount, String target_date, double remaining_amount){
 		this.user_id5 = user_id5;
 		this.name = name;
 		this.amount = amount;
 		this.target_date = target_date;
+		this.remaining_amount = remaining_amount;
 	}
 
 	public int getGoal_id() {
@@ -61,4 +64,11 @@ public class Goals {
 	public void setTarget_date(String target_date) {
 		this.target_date = target_date;
 	}
+	public double getRemaining_amount() {
+		return remaining_amount;
+	}
+	public void setRemaining_amount(double remaining_amount) {
+		this.remaining_amount = remaining_amount;
+	}
+	
 }

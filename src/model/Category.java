@@ -22,7 +22,8 @@ public class Category {
 	            "Food and Dining",
 	            "Subscriptions and Memberships",
 	            "Health and Wellness",
-	            "Debts and Loans"
+	            "Debts and Loans",
+	            "Leisure"
 	        ));
 	    }
 

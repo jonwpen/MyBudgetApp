@@ -7,7 +7,7 @@ public class User {
 	private String last_name;
 	private String username;
 	private String email;
-	//Overloaded constructor is required for the getAllUsers() method.
+	
 	public User(int user_id, String first_name,String last_name,String username,String email){
 		this.user_id = user_id;
 		this.first_name = first_name;
@@ -15,7 +15,7 @@ public class User {
 		this.username = username;
 		this.email = email;
 	}
-	//Leave out auto-incrementing values
+	
 	public User(String first_name,String last_name,String username,String email){
 		this.first_name = first_name;
 		this.last_name = last_name;
