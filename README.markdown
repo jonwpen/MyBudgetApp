@@ -61,6 +61,19 @@ Navigate through the CLI interface using the numerical options provided.
 Input your financial data as prompted, and enjoy the seamless management
 and analysis of your personal budget.
 
+### What I Learned
+
+- **Starting Small**: Initially being overwhelmed by the complexity of the project, I realized the importance of starting with a Minimal Viable Product, focusing on one to three simple CRUD methods before expanding.
+  
+- **Code Organization**: Collapsing methods is very helpful for viewing class structure, especially when a class spans several hundred lines of code.
+
+- **Iterative Testing**: It's essential to test the code continuously rather than waiting until the end. Errors may not be immediately apparent, but they can lead to significant issues later on and even massive design overhauls.
+
+- **Code Refactoring and Decoupling**: Utilizing practices like the DRY (Don't Repeat Yourself) method, decomposing code, and extracting logic into separate methods helped me create a more maintainable codebase. The scale of this project really drove 
+this point home for me.
+
+- **Project Complexity and Planning**: I learned that a project can grow exponentially in complexity without a clear outline, emphasizing the need for proper planning. I realize this is still an area for improvement.
+
 ## Dependencies
 
 -   Java (JDK 8 or higher) (This project was developed using 17.0.3)
