@@ -2,13 +2,7 @@
 
 # Budget Tracker
 
-Welcome to Budget Tracker, a CLI-based budgeting tool designed for
-personal finance management. This application offers features such as
-account tracking, income and expense management, budget analysis, and
-goal setting. Created as a capstone project for Coding Nomads' Java Programming
-course, it includes standout functionalities like a Comprehensive
-Financial Sanity Report. Get started with Budget Tracker for a
-straightforward and insightful look at your finances.
+Welcome to Budget Tracker, a CLI-based budgeting tool designed for personal finance management. Created as a capstone project for Coding Nomads' Java Programming course, this application offers features such as account tracking, income and expense management, budget analysis, goal setting, and standout functionalities like a Comprehensive Financial Sanity Report. In addition to these features, I've incorporated user-friendly error handling and custom exceptions to ensure a smooth user experience. I've also implemented file I/O capabilities for data persistence, and integrated appropriate data structures like HashMaps for efficient financial calculations. Additionally, I've focused on creating reusable and decoupled code, promoting modularity and maintainability throughout the application. Get started with Budget Tracker for a straightforward and insightful look at your finances.
 
 ## Features
 
