@@ -30,51 +30,16 @@ public class Expense {
 		this.category_id = category_id;
 	}
 
-	public int getExpense_id() {
-		return expense_id;
-	}
-
-	public void setExpense_id(int expense_id) {
-		this.expense_id = expense_id;
-	}
-
-	public int getUser_id4() {
-		return user_id4;
-	}
-
-	public void setUser_id4(int user_id4) {
-		this.user_id4 = user_id4;
-	}
-
-	public String getName() {
-		return name;
-	}
-
-	public void setName(String name) {
-		this.name = name;
-	}
-
-	public double getAmount() {
-		return amount;
-	}
-
-	public void setAmount(double amount) {
-		this.amount = amount;
-	}
-
-	public String getFrequency() {
-		return frequency;
-	}
-
-	public void setFrequency(String frequency) {
-		this.frequency = frequency;
-	}
-
-	public int getCategory_id() {
-		return category_id;
-	}
-
-	public void setCategory_id(int category_id) {
-		this.category_id = category_id;
-	}
+	public int getExpense_id() {return expense_id;}
+	public void setExpense_id(int expense_id) {this.expense_id = expense_id;}
+	public int getUser_id4() {return user_id4;}
+	public void setUser_id4(int user_id4) {this.user_id4 = user_id4;}
+	public String getName() {return name;}
+	public void setName(String name) {this.name = name;}
+	public double getAmount() {return amount;}
+	public void setAmount(double amount) {this.amount = amount;}
+	public String getFrequency() {return frequency;}
+	public void setFrequency(String frequency) {this.frequency = frequency;}
+	public int getCategory_id() {return category_id;}
+	public void setCategory_id(int category_id) {this.category_id = category_id;}
 }

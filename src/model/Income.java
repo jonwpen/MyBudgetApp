@@ -15,27 +15,10 @@ public class Income {
 		this.income_id = income_id;
 	}
 
-	public int getIncome_id() {
-		return income_id;
-	}
-
-	public void setIncome_id(int income_id) {
-		this.income_id = income_id;
-	}
-
-	public int getUser_id2() {
-		return user_id2;
-	}
-
-	public void setUser_id2(int user_id2) {
-		this.user_id2 = user_id2;
-	}
-
-	public double getWeekly_income() {
-		return weekly_income;
-	}
-
-	public void setWeekly_income(double weekly_income) {
-		this.weekly_income = weekly_income;
-	}
+	public int getIncome_id() {return income_id;}
+	public void setIncome_id(int income_id) {this.income_id = income_id;}
+	public int getUser_id2() {return user_id2;}
+	public void setUser_id2(int user_id2) {this.user_id2 = user_id2;}
+	public double getWeekly_income() {return weekly_income;}
+	public void setWeekly_income(double weekly_income) {this.weekly_income = weekly_income;}
 }
