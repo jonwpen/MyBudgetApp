@@ -1,5 +1,8 @@
 package data;
 
+import java.io.UnsupportedEncodingException;
+import java.net.URLEncoder;
+import java.nio.charset.StandardCharsets;
 import java.sql.*;
 import java.util.ArrayList;
 import java.util.Arrays;
@@ -15,15 +18,32 @@ import model.User;
 
 public class BudgetData {
     private Connection connection;
+    private static final String USERNAME = "root";
+    private static final String DB_NAME = "budget_app_db";
+    private static final String CONNECTION_URL = "jdbc:mysql://localhost/%s?user=%s&password=%s&useSSL=false&allowPublicKeyRetrieval=true";
+    private static String PASSWORD;
+
+    static { //Retrieve the value of the environment variable "DB_PASSWORD"
+        String passwordEnv = System.getenv("DB_PASSWORD"); 
+        if (passwordEnv == null) {
+            System.out.println("Database password environment variable (DB_PASSWORD) is missing. Please configure it properly.");
+            System.exit(1);
+        }
+        try { //URL encode the password to ensure any special characters are properly handled
+            PASSWORD = URLEncoder.encode(passwordEnv, "UTF-8"); 
+        } catch (UnsupportedEncodingException e) {
+            System.out.println("An unexpected error occurred while encoding the database password.");
+            System.exit(1);
+        }
+    }
 
     public BudgetData() {
         //Initialize the database connection using JDBC
-        String url = "jdbc:mysql://localhost/budget_app_db?user=root&password=password&useSSL=false&allowPublicKeyRetrieval=true";
-        
         try {
-            connection = DriverManager.getConnection(url);
+            connection = DriverManager.getConnection(String.format(CONNECTION_URL, DB_NAME, USERNAME, PASSWORD));
+            System.out.println("Database connected successfully");
         } catch (SQLException e) {
-            System.out.println("Error initializing database connection: " + e.getMessage());
+            System.out.println("Error initializing database connection. Please check your configuration and try again.");
         }
     }
 

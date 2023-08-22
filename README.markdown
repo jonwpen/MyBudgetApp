@@ -43,11 +43,37 @@ practices with your long-term financial objectives.
 
 ## Installation and Setup
 
-1.  Clone the repository or download the ZIP file.
-2.  Open the project in your preferred Java IDE.
-3.  Ensure MySQL is installed and configured properly.
-4.  Update the database connection details in the configuration file.
-5.  Build and run the application.
+1. **Clone the repository or download the ZIP file.**
+2. **Open the project in your preferred Java IDE.**
+3. **Ensure MySQL is installed and configured properly.**
+4. **Configure Database Connection:**
+   - The application retrieves the database password from an environment variable named `DB_PASSWORD`. Wherever you will be running the application, set this environment variable in your system to match your MySQL password:
+     - **Windows**: In Command Prompt, run `set DB_PASSWORD=YourPasswordHere`.
+     - **Linux/Mac**: In the terminal, run `export DB_PASSWORD=YourPasswordHere`.
+     - **Inside IntelliJ IDEA**:
+       1. Open the 'Run/Debug Configurations' dialog by clicking on 'Edit Configurations...' in the top right corner near the run buttons.
+       2. Select the configuration for your project in the left pane.
+       3. Go to the 'Environment variables' field and click on the '...' button.
+       4. Click the '+' button to add a new environment variable.
+       5. Enter 'DB_PASSWORD' for the name and your database password for the value.
+       6. Click 'OK' to close the dialogs, and then run the application as usual.
+     - **Inside Eclipse**:
+       1. Right-click on the project in the 'Project Explorer' or 'Package Explorer'.
+       2. Select 'Run As' > 'Run Configurations...'.
+       3. In the left pane, select 'Java Application' and the configuration for your project.
+       4. Go to the 'Environment' tab.
+       5. Click 'New...' to add a new environment variable.
+       6. Enter 'DB_PASSWORD' for the name and your database password for the value.
+       7. Click 'OK', then 'Apply', and then 'Run' to launch the application.
+   - **Note**: The default database username in the code is set to 'root'. If you are using a different username for MySQL, make sure to update the 'USERNAME' constant in the 'BudgetData' class to match your MySQL configuration.
+   - Open the `BudgetData` class to review the connection details. Modify the `USERNAME` and `DB_NAME` constants if needed to match your MySQL configuration.
+5. **Use the included SQL dump to initialize the database schema.**
+6. **Build and run the application:**
+   - Find the main method (`public static void main`) inside the `ControllerUserInterface` class.
+   - Run this method to launch the application.
+
+Note: The database password must be set in the environment each time you start a new terminal session, or you can add the export/set command to your shell profile (e.g., `.bashrc`, `.bash_profile`) to make it permanent.
+
 
 ## Usage
 

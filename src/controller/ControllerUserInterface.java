@@ -599,15 +599,15 @@ public class ControllerUserInterface {
     }
 	
 	public static void main(String[] args) {
-		
-		BudgetData jdbc = new BudgetData();
-		jdbc.testDatabaseConnection(); //connect to database
-		ControllerUserInterface controllerInterface = new ControllerUserInterface(new BudgetData());
-		jdbc.ensureCategoriesArePopulated(); //If table is empty, populate the 'category' database table with predefined expense categories
-		jdbc.ensureAccountTypesArePopulated(); //If table is empty, populate the 'account_type' database table with predefined account types
-		
-		controllerInterface.run(currentUser); //Launch the user interface. Cycle through all menus until user exits
-		
-		jdbc.closeConnection();
+	    BudgetData jdbc = new BudgetData();
+	    jdbc.testDatabaseConnection(); //connect to the database
+	    ControllerUserInterface controllerInterface = new ControllerUserInterface(jdbc); // Pass the same BudgetData instance
+	    jdbc.ensureCategoriesArePopulated(); //If the table is empty, populate the 'category' database table with predefined expense categories
+	    jdbc.ensureAccountTypesArePopulated(); //If the table is empty, populate the 'account_type' database table with predefined account types
+	    
+	    controllerInterface.run(currentUser); //Launch the user interface. Cycle through all menus until the user exits
+	    
+	    jdbc.closeConnection();
 	}
+
 }
